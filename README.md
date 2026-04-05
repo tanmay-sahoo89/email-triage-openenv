@@ -24,6 +24,27 @@ A production-ready OpenEnv environment where AI agents learn to triage, classify
 
 ---
 
+## 🚀 Try It Live!
+
+| Link | Purpose |
+|------|---------|
+| **🌐 [Live API](https://emitboi-email-triage-env.hf.space/)** | Test endpoints (health check, /reset, /step, etc.) |
+| **🤗 [HF Space](https://huggingface.co/spaces/EmitBoi/email-triage-env)** | Hosted environment on Hugging Face |
+| **📦 [GitHub Repo](https://github.com/tanmay-sahoo89/email-triage-openenv)** | Full source code and documentation |
+
+### Quick Test
+```bash
+# Health check
+curl https://emitboi-email-triage-env.hf.space/
+
+# Start an episode
+curl -X POST https://emitboi-email-triage-env.hf.space/reset \
+  -H "Content-Type: application/json" \
+  -d '{"task_id": "email_classify"}'
+```
+
+---
+
 ## 🏆 Why This Project Wins
 
 ### 1. **Real-World Problem** 💼
