@@ -243,6 +243,11 @@ docker run -p 7860:7860 \
 | POST   | `/stream_step` | Streaming step with SSE grading feedback                                   |
 | GET    | `/state`       | Current environment state                                                  |
 | GET    | `/curriculum`  | Curriculum learning status and unlocked tasks                              |
+| GET    | `/metrics`     | Aggregate statistics and analytics                                         |
+| GET    | `/leaderboard` | Best scores per task and performance tracking                              |
+| GET    | `/replay`      | Episode history for replay and analysis                                    |
+| GET    | `/hints/{task_id}` | Task-specific hints for struggling agents                              |
+| POST   | `/configure`   | Dynamically configure environment parameters                               |
 
 ### Deploy to Hugging Face Spaces
 
@@ -295,6 +300,62 @@ Tracks seen emails per session to prevent memorization:
 - **De-escalation bonus**: Extra reward for appropriate emotional de-escalation
 - **Proactive follow-up bonus**: Extra reward for suggesting next steps
 - **Edge case robustness**: Handles empty, adversarial, and excessively long responses
+
+### 🆕 New in v1.1.0
+
+#### 💡 Hindsight Feedback
+After grading, the environment returns the **ideal response** so agents can learn from examples:
+
+```json
+{
+  "reward_detail": {
+    "ideal_response": "Priority: urgent\nCategory: billing",
+    "explanations": {
+      "priority": "Correct! 'urgent' matches exactly.",
+      "category": "Incorrect: expected 'billing', got 'technical'."
+    }
+  }
+}
+```
+
+#### 📊 Metrics & Analytics
+Track aggregate performance via `/metrics`:
+
+```bash
+curl http://localhost:7860/metrics
+```
+
+Returns: total episodes, per-task stats (avg/min/max scores), uptime, etc.
+
+#### 🏆 Leaderboard
+Track best scores and perfect runs via `/leaderboard`:
+
+```bash
+curl http://localhost:7860/leaderboard
+```
+
+#### 💬 Hint System
+Get task-specific hints for struggling agents:
+
+```bash
+curl http://localhost:7860/hints/email_classify
+```
+
+#### ⚙️ Dynamic Configuration
+Adjust environment parameters without restart:
+
+```bash
+curl -X POST http://localhost:7860/configure \
+  -H "Content-Type: application/json" \
+  -d '{"curriculum_mode": false, "adaptive_difficulty": true}'
+```
+
+#### 🔁 Episode Replay
+Review past episodes for analysis:
+
+```bash
+curl http://localhost:7860/replay?limit=10
+```
 
 ## 📁 Project Structure
 
