@@ -603,7 +603,6 @@ my_env/
 │   │
 │   ├── tasks/
 │   │   ├── __init__.py
-│   │   ├── base.py           # Abstract base task class
 │   │   ├── email_classify.py # Easy: classify by priority + category
 │   │   ├── email_respond.py  # Medium: draft professional reply
 │   │   └── email_thread.py   # Hard: multi-turn thread resolution
@@ -620,9 +619,6 @@ my_env/
 │   ├── test_graders.py       # Grader determinism and scoring tests
 │   ├── test_server.py        # API endpoint tests
 │   └── test_inference.py     # Inference output format tests
-│
-└── frontend/                 # Optional React visualization
-    └── mini-rl-environment.jsx
 ```
 
 ## 🚀 Quick Start

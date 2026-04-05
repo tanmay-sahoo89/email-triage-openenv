@@ -190,7 +190,7 @@ def run_task(client: OpenAI, env: EmailTriageEnv, task_name: str, email_idx: int
 
 def main() -> None:
     client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
-    env = EmailTriageEnv(adaptive_difficulty=False)
+    env = EmailTriageEnv(adaptive_difficulty=False, curriculum_mode=False)
 
     # Run 2 episodes per task to demonstrate reproducibility
     for task_name in TASK_NAMES:
