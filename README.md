@@ -1,3 +1,13 @@
+---
+title: Email Triage Env
+emoji: 📧
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+license: mit
+---
+
 # 📧 Email Triage & Response — OpenEnv Environment
 
 [![OpenEnv](https://img.shields.io/badge/OpenEnv-1.0.0-blue)](https://github.com/huggingface/openenv)
