@@ -26,13 +26,14 @@ A production-ready OpenEnv environment where AI agents learn to triage, classify
 
 ## 🚀 Try It Live!
 
-| Link | Purpose |
-|------|---------|
-| **🌐 [Live API](https://emitboi-email-triage-env.hf.space/)** | Test endpoints (health check, /reset, /step, etc.) |
-| **🤗 [HF Space](https://huggingface.co/spaces/EmitBoi/email-triage-env)** | Hosted environment on Hugging Face |
-| **📦 [GitHub Repo](https://github.com/tanmay-sahoo89/email-triage-openenv)** | Full source code and documentation |
+| Link                                                                         | Purpose                                            |
+| ---------------------------------------------------------------------------- | -------------------------------------------------- |
+| **🌐 [Live API](https://emitboi-email-triage-env.hf.space/)**                | Test endpoints (health check, /reset, /step, etc.) |
+| **🤗 [HF Space](https://huggingface.co/spaces/EmitBoi/email-triage-env)**    | Hosted environment on Hugging Face                 |
+| **📦 [GitHub Repo](https://github.com/tanmay-sahoo89/email-triage-openenv)** | Full source code and documentation                 |
 
 ### Quick Test
+
 ```bash
 # Health check
 curl https://emitboi-email-triage-env.hf.space/
@@ -48,12 +49,15 @@ curl -X POST https://emitboi-email-triage-env.hf.space/reset \
 ## 🏆 Why This Project Wins
 
 ### 1. **Real-World Problem** 💼
+
 - **Not a toy task**: Email triage is an actual customer support workflow
 - **Business value**: Companies spend millions on email management systems
 - **Practical impact**: Agents learn skills applicable to real support teams
 
 ### 2. **17 Innovative Features** ⭐
+
 Most competing environments have 5-7 features. We have **17**:
+
 - ✅ Curriculum learning (progressive task unlocking)
 - ✅ Hindsight feedback (ideal responses shown for learning)
 - ✅ Per-criterion explanations (why each score)
@@ -66,6 +70,7 @@ Most competing environments have 5-7 features. We have **17**:
 - ✅ + 8 more innovation features
 
 ### 3. **Production Quality** 🚀
+
 - **Type hints**: Full type annotations for IDE support
 - **Deterministic graders**: Reproducible scoring
 - **Comprehensive tests**: 4 test suites, 17+ validation checks
@@ -73,6 +78,7 @@ Most competing environments have 5-7 features. We have **17**:
 - **API-first design**: Works with any LLM provider
 
 ### 4. **Agent Learning Optimization** 🧠
+
 - **Curriculum learning**: Tasks unlock progressively (easy→medium→hard)
 - **Hindsight feedback**: Shows ideal responses for faster learning
 - **Adaptive difficulty**: Auto-escalates when agent excels
@@ -80,6 +86,7 @@ Most competing environments have 5-7 features. We have **17**:
 - **Rich reward signals**: 6-10 criteria per task
 
 ### 5. **Research-Friendly** 📊
+
 - **Metrics dashboard**: Aggregate stats via `/metrics`
 - **Leaderboard**: Compare scores across agents
 - **Episode history**: Replay and analyze episodes
@@ -87,6 +94,7 @@ Most competing environments have 5-7 features. We have **17**:
 - **Hint system**: Struggling agents get hints
 
 ### 6. **Technical Excellence** 💻
+
 - **FastAPI**: Modern, fast Python web framework
 - **Pydantic validation**: Strong type safety
 - **Streaming responses**: Real-time feedback via SSE
@@ -99,11 +107,11 @@ Most competing environments have 5-7 features. We have **17**:
 
 ### Core Tasks (3 difficulty levels)
 
-| Task | Difficulty | Purpose | Reward Criteria |
-|------|-----------|---------|-----------------|
-| **Email Classification** | Easy | Classify priority & category | Priority (50%) + Category (50%) |
-| **Response Drafting** | Medium | Write professional reply | Tone + Relevance + Length + Grammar + Greeting + Empathy |
-| **Thread Resolution** | Hard | Analyze contradictions | Contradictions + Priority + Resolution + Follow-up |
+| Task                     | Difficulty | Purpose                      | Reward Criteria                                          |
+| ------------------------ | ---------- | ---------------------------- | -------------------------------------------------------- |
+| **Email Classification** | Easy       | Classify priority & category | Priority (50%) + Category (50%)                          |
+| **Response Drafting**    | Medium     | Write professional reply     | Tone + Relevance + Length + Grammar + Greeting + Empathy |
+| **Thread Resolution**    | Hard       | Analyze contradictions       | Contradictions + Priority + Resolution + Follow-up       |
 
 ### Curriculum Learning Flow
 
@@ -122,7 +130,9 @@ Agent starts → ALWAYS UNLOCK email_classify (easy)
 ### New v1.1.0 Features Explained
 
 #### 💡 **Hindsight Feedback**
+
 After grading, the agent sees what a perfect response looks like:
+
 ```json
 {
   "ideal_response": "Priority: urgent\nCategory: billing",
@@ -132,10 +142,13 @@ After grading, the agent sees what a perfect response looks like:
   }
 }
 ```
-*Why it helps: Agents learn by example, speeds up convergence*
+
+_Why it helps: Agents learn by example, speeds up convergence_
 
 #### 📊 **Metrics & Analytics** (`/metrics` endpoint)
+
 Track aggregate performance:
+
 ```json
 {
   "total_episodes": 1234,
@@ -149,10 +162,13 @@ Track aggregate performance:
   "uptime_seconds": 86400
 }
 ```
-*Why it matters: Researchers monitor agent learning progress*
+
+_Why it matters: Researchers monitor agent learning progress_
 
 #### 🏆 **Leaderboard** (`/leaderboard` endpoint)
+
 Compare performance across agents:
+
 ```json
 {
   "leaderboard": [
@@ -165,26 +181,34 @@ Compare performance across agents:
   ]
 }
 ```
-*Why it's useful: Motivate agents, benchmark improvements*
+
+_Why it's useful: Motivate agents, benchmark improvements_
 
 #### 💬 **Hint System** (`/hints/{task_id}` endpoint)
+
 Help struggling agents without spoiling answers:
+
 - Struggling on classification? → Hint: "Look for urgency keywords"
 - Stuck on response? → Hint: "Always start with a greeting"
 - Hard on thread? → Hint: "Identify who said what first"
 
 #### ⚙️ **Dynamic Configuration** (`/configure` endpoint)
+
 Adjust settings without redeploying:
+
 ```bash
 curl -X POST /configure -d '{
   "curriculum_mode": false,
   "adaptive_difficulty": true
 }'
 ```
-*Why it's powerful: Researchers experiment without downtime*
+
+_Why it's powerful: Researchers experiment without downtime_
 
 #### 🔁 **Episode Replay** (`/replay` endpoint)
+
 Review past episodes for debugging and analysis:
+
 ```bash
 curl /replay?limit=10  # Get last 10 episodes
 ```
@@ -193,17 +217,17 @@ curl /replay?limit=10  # Get last 10 episodes
 
 ## 🎯 How This Compares to Other Submissions
 
-| Feature | Typical Project | Email Triage Env |
-|---------|-----------------|-----------------|
-| **Number of Tasks** | 1-2 | 3 with curriculum |
-| **Endpoints** | 3-5 | **11 endpoints** |
-| **Features** | 5-7 | **17 features** |
-| **Learning Feedback** | Binary reward | Per-criterion + hindsight |
-| **Agent Assistance** | None | Hints + metrics + examples |
-| **Dynamic Config** | No | Yes (/configure) |
-| **Analytics** | Basic | Advanced (/metrics, /leaderboard) |
-| **Real-world Task** | Synthetic | **Email triage** (actual customer support) |
-| **Code Quality** | Good | **Production-grade** (typed, tested, documented) |
+| Feature               | Typical Project | Email Triage Env                                 |
+| --------------------- | --------------- | ------------------------------------------------ |
+| **Number of Tasks**   | 1-2             | 3 with curriculum                                |
+| **Endpoints**         | 3-5             | **11 endpoints**                                 |
+| **Features**          | 5-7             | **17 features**                                  |
+| **Learning Feedback** | Binary reward   | Per-criterion + hindsight                        |
+| **Agent Assistance**  | None            | Hints + metrics + examples                       |
+| **Dynamic Config**    | No              | Yes (/configure)                                 |
+| **Analytics**         | Basic           | Advanced (/metrics, /leaderboard)                |
+| **Real-world Task**   | Synthetic       | **Email triage** (actual customer support)       |
+| **Code Quality**      | Good            | **Production-grade** (typed, tested, documented) |
 
 ---
 
@@ -422,19 +446,19 @@ docker run -p 7860:7860 \
 
 ### API Endpoints
 
-| Method | Path           | Description                                                                |
-| ------ | -------------- | -------------------------------------------------------------------------- |
-| GET    | `/`            | Health check with feature list                                             |
-| POST   | `/reset`       | Start new episode. Body: `{"task_id": "email_classify", "email_index": 0}` |
-| POST   | `/step`        | Agent action. Body: `{"message": "Priority: urgent\nCategory: billing"}`   |
-| POST   | `/stream_step` | Streaming step with SSE grading feedback                                   |
-| GET    | `/state`       | Current environment state                                                  |
-| GET    | `/curriculum`  | Curriculum learning status and unlocked tasks                              |
-| GET    | `/metrics`     | Aggregate statistics and analytics                                         |
-| GET    | `/leaderboard` | Best scores per task and performance tracking                              |
-| GET    | `/replay`      | Episode history for replay and analysis                                    |
-| GET    | `/hints/{task_id}` | Task-specific hints for struggling agents                              |
-| POST   | `/configure`   | Dynamically configure environment parameters                               |
+| Method | Path               | Description                                                                |
+| ------ | ------------------ | -------------------------------------------------------------------------- |
+| GET    | `/`                | Health check with feature list                                             |
+| POST   | `/reset`           | Start new episode. Body: `{"task_id": "email_classify", "email_index": 0}` |
+| POST   | `/step`            | Agent action. Body: `{"message": "Priority: urgent\nCategory: billing"}`   |
+| POST   | `/stream_step`     | Streaming step with SSE grading feedback                                   |
+| GET    | `/state`           | Current environment state                                                  |
+| GET    | `/curriculum`      | Curriculum learning status and unlocked tasks                              |
+| GET    | `/metrics`         | Aggregate statistics and analytics                                         |
+| GET    | `/leaderboard`     | Best scores per task and performance tracking                              |
+| GET    | `/replay`          | Episode history for replay and analysis                                    |
+| GET    | `/hints/{task_id}` | Task-specific hints for struggling agents                                  |
+| POST   | `/configure`       | Dynamically configure environment parameters                               |
 
 ### Deploy to Hugging Face Spaces
 
@@ -491,6 +515,7 @@ Tracks seen emails per session to prevent memorization:
 ### 🆕 New in v1.1.0
 
 #### 💡 Hindsight Feedback
+
 After grading, the environment returns the **ideal response** so agents can learn from examples:
 
 ```json
@@ -506,6 +531,7 @@ After grading, the environment returns the **ideal response** so agents can lear
 ```
 
 #### 📊 Metrics & Analytics
+
 Track aggregate performance via `/metrics`:
 
 ```bash
@@ -515,6 +541,7 @@ curl http://localhost:7860/metrics
 Returns: total episodes, per-task stats (avg/min/max scores), uptime, etc.
 
 #### 🏆 Leaderboard
+
 Track best scores and perfect runs via `/leaderboard`:
 
 ```bash
@@ -522,6 +549,7 @@ curl http://localhost:7860/leaderboard
 ```
 
 #### 💬 Hint System
+
 Get task-specific hints for struggling agents:
 
 ```bash
@@ -529,6 +557,7 @@ curl http://localhost:7860/hints/email_classify
 ```
 
 #### ⚙️ Dynamic Configuration
+
 Adjust environment parameters without restart:
 
 ```bash
@@ -538,6 +567,7 @@ curl -X POST http://localhost:7860/configure \
 ```
 
 #### 🔁 Episode Replay
+
 Review past episodes for analysis:
 
 ```bash
