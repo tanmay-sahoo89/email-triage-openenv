@@ -16,6 +16,78 @@ A real-world OpenEnv environment where AI agents learn to triage, classify, and 
   <img src="public/email_triage_env.png" alt="Email Triage Environment Architecture" width="800"/>
 </p>
 
+### Architecture Flow Explained
+
+The system follows an **Agent-Environment interaction loop** typical of reinforcement learning:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              AGENT (LLM)                                    │
+│                    Qwen2.5-72B / GPT-4 / Claude etc.                        │
+└──────────────────────────────┬──────────────────────────────────────────────┘
+                               │ Action (text response)
+                               ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         FASTAPI SERVER                                      │
+│  ┌─────────┐  ┌─────────┐  ┌──────────────┐  ┌────────────┐                │
+│  │ /reset  │  │ /step   │  │ /stream_step │  │ /curriculum│                │
+│  └────┬────┘  └────┬────┘  └──────┬───────┘  └─────┬──────┘                │
+│       │            │              │                │                        │
+│       ▼            ▼              ▼                ▼                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                      ENVIRONMENT CORE                               │   │
+│  │  • State Management (current task, step, context)                   │   │
+│  │  • Email Similarity Avoidance (prevents memorization)               │   │
+│  │  • Adaptive Difficulty (auto-escalates when score > 0.8)            │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└──────────────────────────────┬──────────────────────────────────────────────┘
+                               │
+          ┌────────────────────┼────────────────────┐
+          ▼                    ▼                    ▼
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│  TASK: CLASSIFY │  │  TASK: RESPOND  │  │  TASK: THREAD   │
+│    (Easy)       │  │    (Medium)     │  │    (Hard)       │
+│  • 1 step       │  │  • 1 step       │  │  • 4 steps      │
+│  • 12 emails    │  │  • 10 emails    │  │  • 5 threads    │
+└────────┬────────┘  └────────┬────────┘  └────────┬────────┘
+         │                    │                    │
+         ▼                    ▼                    ▼
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│ CLASSIFY GRADER │  │ RESPOND GRADER  │  │ THREAD GRADER   │
+│ • Priority 50%  │  │ • Tone 25%      │  │ • Contradict 30%│
+│ • Category 50%  │  │ • Relevance 25% │  │ • Priority 20%  │
+│ • Bonus: phish  │  │ • Length 15%    │  │ • Resolution 25%│
+│   /escalation   │  │ • Forbidden 15% │  │ • Follow-up 15% │
+│                 │  │ • Greeting 10%  │  │ • Coherence 10% │
+│                 │  │ • Empathy 10%   │  │                 │
+└────────┬────────┘  └────────┬────────┘  └────────┬────────┘
+         │                    │                    │
+         └────────────────────┼────────────────────┘
+                              ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         REWARD SIGNAL                                       │
+│  • Score: 0.0 - 1.0 (with bonus up to 1.15)                                │
+│  • Detailed feedback per criterion                                          │
+│  • Edge case penalties (empty, adversarial, too long)                       │
+└──────────────────────────────┬──────────────────────────────────────────────┘
+                               │ Observation + Reward
+                               ▼
+                         Back to AGENT
+```
+
+**Key Flow Steps:**
+
+1. **Reset** → Agent requests a task via `/reset` with optional `task_id` and `email_index`
+2. **Observe** → Environment returns email content with task-specific instructions
+3. **Act** → Agent submits text response via `/step` or `/stream_step`
+4. **Grade** → Task-specific grader computes deterministic reward (0.0–1.0)
+5. **Learn** → Agent receives observation + reward, loop continues
+
+**Curriculum Progression:**
+
+- Tasks unlock based on performance: `classify` (always) → `respond` (≥70%) → `thread` (≥65%)
+- Curriculum status available via `/curriculum` endpoint
+
 ## Environment Description
 
 Agents interact with a stream of realistic emails and must:
@@ -172,7 +244,9 @@ openenv push --repo-id your-username/email-triage-env
 ## Innovative Features
 
 ### 🎓 Curriculum Learning Mode
+
 Tasks unlock progressively based on agent performance:
+
 - **email_classify** (easy): Always available
 - **email_respond** (medium): Unlocks when classify avg ≥ 70%
 - **email_thread** (hard): Unlocks when respond avg ≥ 65%
@@ -183,7 +257,9 @@ curl http://localhost:7860/curriculum
 ```
 
 ### 📡 Streaming Grading Feedback
+
 Real-time grading progress via Server-Sent Events:
+
 ```bash
 curl -X POST http://localhost:7860/stream_step \
   -H "Content-Type: application/json" \
@@ -193,12 +269,15 @@ curl -X POST http://localhost:7860/stream_step \
 Events emitted: `start` → `progress` (per-criterion) → `complete`
 
 ### 🔄 Email Similarity Avoidance
+
 Tracks seen emails per session to prevent memorization:
+
 - Each task maintains a seen-email set
 - New episodes prioritize unseen emails
 - Auto-resets when all emails exhausted
 
 ### Other Features
+
 - **Adaptive difficulty**: Automatically escalates to harder tasks when agent scores >0.8
 - **Multi-turn episodes**: Hard task requires 4-step reasoning chain
 - **Rich grader feedback**: Per-criterion breakdowns with actionable improvement hints
