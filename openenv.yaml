@@ -1,0 +1,83 @@
+name: email-triage-env
+description: >
+  A real-world OpenEnv environment for email triage and response.
+  Agents classify emails, draft professional replies to complaints,
+  and resolve multi-email threads with contradictions.
+  Simulates a task that customer support teams do daily.
+version: "1.0.0"
+author: "EmitBoi"
+
+action_space:
+  type: text
+  description: "Free-form text response from the agent"
+
+observation_space:
+  type: text
+  description: "Email content with task-specific instructions"
+
+reward_range: [0.0, 1.0]
+
+tasks:
+  - id: email_classify
+    name: "Email Classification"
+    difficulty: easy
+    description: "Classify an email by priority (urgent/normal/low) and category (billing/technical/general/complaint/security)"
+    max_steps: 1
+    grader: deterministic
+
+  - id: email_respond
+    name: "Response Drafting"
+    difficulty: medium
+    description: "Draft a professional, empathetic response to a customer complaint email"
+    max_steps: 1
+    grader: deterministic
+
+  - id: email_thread
+    name: "Thread Resolution"
+    difficulty: hard
+    description: "Analyze a multi-email thread with contradictions, identify conflicts, determine priority, draft resolution, and recommend follow-up"
+    max_steps: 4
+    grader: deterministic
+
+endpoints:
+  reset:
+    method: POST
+    path: /reset
+    description: "Reset environment and start a new episode"
+  step:
+    method: POST
+    path: /step
+    description: "Execute one step with agent action"
+  stream_step:
+    method: POST
+    path: /stream_step
+    description: "Execute step with streaming grading feedback (Server-Sent Events)"
+  state:
+    method: GET
+    path: /state
+    description: "Get current environment state"
+  curriculum:
+    method: GET
+    path: /curriculum
+    description: "Get curriculum learning status and unlocked tasks"
+  health:
+    method: GET
+    path: /
+    description: "Health check endpoint"
+
+features:
+  - curriculum_learning: "Auto-unlock harder tasks when agent masters easier ones (classify→respond→thread)"
+  - adaptive_difficulty: "Auto-escalates task difficulty when agent scores >0.8"
+  - email_similarity_avoidance: "Tracks seen emails per session to prevent memorization"
+  - streaming_grading: "Real-time grading feedback via /stream_step endpoint"
+  - multi_turn_episodes: "Hard task uses 4-step episodes (identify→prioritize→resolve→followup)"
+  - rich_grader_feedback: "Per-criterion score breakdowns with actionable feedback"
+  - edge_case_handling: "Handles empty, adversarial, and excessively long responses"
+  - phishing_detection_bonus: "Bonus reward for identifying phishing emails"
+  - deescalation_bonus: "Bonus reward for appropriate de-escalation of emotional customers"
+  - proactive_followup_bonus: "Bonus reward for suggesting follow-up actions"
+
+curriculum_thresholds:
+  email_classify: 0.0    # Always unlocked
+  email_respond: 0.70    # Requires 70% avg on classify
+  email_thread: 0.65     # Requires 65% avg on respond
