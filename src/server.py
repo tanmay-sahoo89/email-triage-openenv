@@ -7,8 +7,10 @@ import json
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
+from pathlib import Path
+
+from fastapi import FastAPI, HTTPException, Response
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 
 from src.environment import EmailTriageEnv
@@ -132,6 +134,14 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    favicon_path = Path(__file__).parent.parent / "public" / "favicon.ico"
+    if favicon_path.exists():
+        return FileResponse(favicon_path, media_type="image/x-icon")
+    return Response(status_code=204)
 
 
 @app.get("/", response_model=HealthResponse)
