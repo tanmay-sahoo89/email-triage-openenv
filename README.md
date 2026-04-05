@@ -8,37 +8,26 @@ pinned: false
 license: mit
 ---
 
-# 📧 Email Triage & Response — OpenEnv Environment
+# Email Triage & Response — OpenEnv Environment
 
 [![OpenEnv](https://img.shields.io/badge/OpenEnv-1.1.0-blue)](https://github.com/huggingface/openenv)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-green)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-teal)](https://fastapi.tiangolo.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97-Hugging%20Face%20Spaces-orange)](https://huggingface.co/spaces)
-[![Version](https://img.shields.io/badge/Version-1.1.0-blueviolet)]()
-[![Features](https://img.shields.io/badge/Features-17-success)]()
 
 > **Meta x Hugging Face OpenEnv Hackathon Submission**
 
-A production-ready OpenEnv environment where AI agents learn to triage, classify, and respond to emails. This simulates a real customer support workflow that companies use daily — not a game or toy environment.
+An OpenEnv environment that simulates real-world email triage — the kind of work customer support teams do every day. AI agents classify emails by priority and category, draft professional responses to complaints, and resolve multi-email threads where different senders contradict each other. Three tasks with increasing difficulty, deterministic grading, and meaningful partial-credit rewards.
 
----
-
-## 🚀 Try It Live!
-
-| Link                                                                         | Purpose                                            |
-| ---------------------------------------------------------------------------- | -------------------------------------------------- |
-| **🌐 [Live API](https://emitboi-email-triage-env.hf.space/)**                | Test endpoints (health check, /reset, /step, etc.) |
-| **🤗 [HF Space](https://huggingface.co/spaces/EmitBoi/email-triage-env)**    | Hosted environment on Hugging Face                 |
-| **📦 [GitHub Repo](https://github.com/tanmay-sahoo89/email-triage-openenv)** | Full source code and documentation                 |
-
-### Quick Test
+| Link | Description |
+|------|-------------|
+| [Live API](https://emitboi-email-triage-env.hf.space/) | Health check, `/reset`, `/step`, `/state` |
+| [HF Space](https://huggingface.co/spaces/EmitBoi/email-triage-env) | Deployed environment |
+| [GitHub](https://github.com/tanmay-sahoo89/email-triage-openenv) | Source code |
 
 ```bash
-# Health check
+# Quick test
 curl https://emitboi-email-triage-env.hf.space/
-
-# Start an episode
 curl -X POST https://emitboi-email-triage-env.hf.space/reset \
   -H "Content-Type: application/json" \
   -d '{"task_id": "email_classify"}'
@@ -46,363 +35,302 @@ curl -X POST https://emitboi-email-triage-env.hf.space/reset \
 
 ---
 
-## 🏆 Why This Project Wins
+## Environment Description
 
-### 1. **Real-World Problem** 💼
+Agents interact with a pool of 27 realistic synthetic emails and must handle three progressively harder tasks:
 
-- **Not a toy task**: Email triage is an actual customer support workflow
-- **Business value**: Companies spend millions on email management systems
-- **Practical impact**: Agents learn skills applicable to real support teams
+1. **Classify** emails by priority and category (easy, 1 step)
+2. **Draft professional responses** to customer complaints (medium, 1 step)
+3. **Resolve multi-email threads** with contradicting information (hard, 4 steps)
 
-### 2. **17 Innovative Features** ⭐
-
-Most competing environments have 5-7 features. We have **17**:
-
-- ✅ Curriculum learning (progressive task unlocking)
-- ✅ Hindsight feedback (ideal responses shown for learning)
-- ✅ Per-criterion explanations (why each score)
-- ✅ Metrics & leaderboard (track progress)
-- ✅ Dynamic configuration (tune without redeploying)
-- ✅ Episode replay (learn from history)
-- ✅ Streaming grading (real-time feedback)
-- ✅ Multi-turn reasoning (4-step problem solving)
-- ✅ Edge case handling (robustness)
-- ✅ + 8 more innovation features
-
-### 3. **Production Quality** 🚀
-
-- **Type hints**: Full type annotations for IDE support
-- **Deterministic graders**: Reproducible scoring
-- **Comprehensive tests**: 4 test suites, 17+ validation checks
-- **Docker containerized**: Deploy anywhere
-- **API-first design**: Works with any LLM provider
-
-### 4. **Agent Learning Optimization** 🧠
-
-- **Curriculum learning**: Tasks unlock progressively (easy→medium→hard)
-- **Hindsight feedback**: Shows ideal responses for faster learning
-- **Adaptive difficulty**: Auto-escalates when agent excels
-- **Email similarity avoidance**: Prevents memorization, ensures generalization
-- **Rich reward signals**: 6-10 criteria per task
-
-### 5. **Research-Friendly** 📊
-
-- **Metrics dashboard**: Aggregate stats via `/metrics`
-- **Leaderboard**: Compare scores across agents
-- **Episode history**: Replay and analyze episodes
-- **Configurable**: Adjust settings via API without code changes
-- **Hint system**: Struggling agents get hints
-
-### 6. **Technical Excellence** 💻
-
-- **FastAPI**: Modern, fast Python web framework
-- **Pydantic validation**: Strong type safety
-- **Streaming responses**: Real-time feedback via SSE
-- **11 API endpoints**: Comprehensive interface
-- **No hardcoded paths**: Fully portable across systems
+The environment follows the standard OpenEnv interface: `reset()` starts an episode, `step(action)` returns observation + reward + done, and `state()` returns current metadata.
 
 ---
 
-## 📚 Quick Feature Overview
+## Tasks
 
-### Core Tasks (3 difficulty levels)
+### Task 1: Email Classification (Easy)
 
-| Task                     | Difficulty | Purpose                      | Reward Criteria                                          |
-| ------------------------ | ---------- | ---------------------------- | -------------------------------------------------------- |
-| **Email Classification** | Easy       | Classify priority & category | Priority (50%) + Category (50%)                          |
-| **Response Drafting**    | Medium     | Write professional reply     | Tone + Relevance + Length + Grammar + Greeting + Empathy |
-| **Thread Resolution**    | Hard       | Analyze contradictions       | Contradictions + Priority + Resolution + Follow-up       |
+The agent receives a single email and must output its priority (`urgent`, `normal`, `low`) and category (`billing`, `technical`, `general`, `complaint`, `security`).
 
-### Curriculum Learning Flow
+- **Steps per episode**: 1
+- **Dataset**: 12 emails covering payment failures, CI/CD outages, phishing attempts, emotional complaints, and routine inquiries
+- **Expected response format**: `Priority: urgent\nCategory: billing`
+- **Grading**: Priority (50%) + Category (50%). Exact match = full credit. Off-by-one priority = half credit. Bonus +0.10 for flagging phishing emails, +0.05 for noting emotional escalation.
 
+### Task 2: Response Drafting (Medium)
+
+The agent receives a customer complaint and must write a professional, empathetic reply.
+
+- **Steps per episode**: 1
+- **Dataset**: 10 complaint emails — delayed refunds, broken integrations, SLA violations, GDPR requests, accessibility failures, rude support agents, breaking API changes
+- **Grading** (6 weighted criteria):
+
+| Criterion | Weight | How it's scored |
+|-----------|--------|-----------------|
+| Tone | 25% | Counts professional language markers (`resolve`, `ensure`, `assist`), penalizes rude words |
+| Relevance | 25% | Keyword overlap between the agent's response and the original complaint |
+| Length | 15% | 50-300 words = full credit, too short or too long = reduced |
+| No forbidden phrases | 15% | Zero tolerance for `not my problem`, `deal with it`, `calm down`, etc. |
+| Greeting | 10% | Must start with `Dear`, `Hello`, `Hi`, or similar professional greeting |
+| Empathy | 10% | Looks for markers like `apologize`, `understand`, `frustrating`, `inconvenience` |
+
+- **Bonuses**: +0.05 for proactive follow-up suggestions, +0.05 for de-escalation of emotionally charged emails
+
+### Task 3: Thread Resolution (Hard)
+
+The agent receives a multi-email thread (3-4 emails) where different senders make contradicting claims. The agent must complete 4 steps in sequence:
+
+| Step | What the agent does | Weight | How it's graded |
+|------|---------------------|--------|-----------------|
+| 1. Identify contradictions | Find where senders disagree | 30% | Word overlap with known contradictions + conflict-marker keywords |
+| 2. Determine priority | Decide the true urgency level | 20% | Exact match = 1.0, off-by-one = 0.5 |
+| 3. Draft resolution | Write action items addressing the conflict | 25% | Coverage of expected action items + structured format (numbered/bulleted) |
+| 4. Recommend follow-up | Suggest next steps with timing and participants | 15% | Follow-up keywords + time specificity + participant overlap |
+
+- **Steps per episode**: 4 (multi-turn)
+- **Dataset**: 5 thread scenarios — server migration deadline conflict, data breach scope disagreement, budget contradiction, product launch vs security risk, remote work policy confusion
+
+---
+
+## Action & Observation Spaces
+
+**Observation** (text): Each observation includes `task_id`, `prompt` (email content with instructions), `email_data` (structured metadata), `step`/`max_steps`, and `context` (previous responses for multi-turn tasks).
+
+**Action** (text): Free-form text. The expected format varies by task — two-line classification, 50-300 word professional reply, or step-by-step analysis.
+
+---
+
+## Reward Function
+
+All scores are in `[0.0, 1.0]`. Every grader is fully deterministic — the same input always produces the same score.
+
+### Edge Case Penalties (applied to all tasks)
+
+| Condition | Penalty |
+|-----------|---------|
+| Empty response | Score forced to 0.0 |
+| Nonsense (< 30% alphabetic characters) | -0.50 |
+| Prompt repetition | -0.30 |
+| Excessively long (> 2000 words) | -0.15 |
+| Single word | Score reduced to 20% |
+
+---
+
+## Innovative Features
+
+### 1. Curriculum Learning
+
+Tasks unlock progressively based on demonstrated competence. An agent cannot attempt harder tasks until it proves itself on easier ones.
+
+- `email_classify` (easy) — always unlocked
+- `email_respond` (medium) — unlocks when the agent's average classify score reaches 70% (over last 5 episodes)
+- `email_thread` (hard) — unlocks when average respond score reaches 65%
+
+**Why this matters**: Prevents agents from wasting compute on tasks they're not ready for. Mirrors how human trainees are onboarded — you don't handle escalations on day one.
+
+```bash
+# Check what's unlocked
+curl https://emitboi-email-triage-env.hf.space/curriculum
 ```
-Agent starts → ALWAYS UNLOCK email_classify (easy)
-                        ↓
-            Agent scores 70%+ on classify?
-                        ↓
-                YES → UNLOCK email_respond (medium)
-                        ↓
-            Agent scores 65%+ on respond?
-                        ↓
-                YES → UNLOCK email_thread (hard)
+
+Returns:
+```json
+{
+  "unlocked_tasks": ["email_classify"],
+  "locked_tasks": ["email_respond", "email_thread"],
+  "task_averages": {"email_classify": 0.82},
+  "thresholds": {"email_classify": 0.0, "email_respond": 0.70, "email_thread": 0.65}
+}
 ```
 
-### New v1.1.0 Features Explained
+### 2. Adaptive Difficulty
 
-#### 💡 **Hindsight Feedback**
+When no specific task is requested in `reset()`, the environment automatically selects a task based on the agent's recent performance:
 
-After grading, the agent sees what a perfect response looks like:
+- Average score > 0.8 over last 5 episodes → assigns `email_thread` (hard)
+- Average score > 0.5 → assigns `email_respond` (medium)
+- Otherwise → assigns `email_classify` (easy)
+
+**Why this matters**: The agent always faces an appropriate challenge level. No manual task selection needed — the environment acts as its own difficulty scheduler.
+
+### 3. Email Similarity Avoidance
+
+The environment tracks which emails each task has already presented in the current session. On each `reset()`, it picks an email the agent hasn't seen yet.
+
+- Each task maintains a set of seen email IDs
+- New episodes always select unseen emails first
+- When all emails in a task's pool are exhausted, the tracking resets and cycles start over
+
+**Why this matters**: Prevents agents from memorizing specific emails and gaming the grader. Forces generalization across diverse email types.
+
+### 4. Hindsight Feedback
+
+After grading, the environment returns the **ideal response** alongside the agent's score. This lets agents learn from examples without needing a separate training signal.
 
 ```json
 {
-  "ideal_response": "Priority: urgent\nCategory: billing",
-  "explanations": {
-    "priority": "Correct! 'urgent' matches exactly.",
-    "category": "Partial: 'general' is close but should be 'billing'"
+  "reward_detail": {
+    "total": 0.75,
+    "ideal_response": "Priority: urgent\nCategory: billing",
+    "explanations": {
+      "priority": "Correct! 'urgent' matches exactly.",
+      "category": "Incorrect: expected 'billing', got 'technical'."
+    },
+    "hints": ["Consider the main topic: billing issues involve payments and invoices."]
   }
 }
 ```
 
-_Why it helps: Agents learn by example, speeds up convergence_
+**Why this matters**: Standard RL environments only return a scalar reward. Hindsight feedback gives the agent a concrete example of what "good" looks like, which is especially useful for LLM-based agents that learn from demonstrations.
 
-#### 📊 **Metrics & Analytics** (`/metrics` endpoint)
+### 5. Per-Criterion Explanations
 
-Track aggregate performance:
+Every grader breaks down its score into individual criteria with human-readable explanations of why each criterion scored the way it did.
+
+For classification: explains whether priority/category matched, was partially correct, or missed entirely. For response drafting: reports tone percentage, relevance overlap, length status, forbidden phrase violations, greeting presence, and empathy marker count.
+
+**Why this matters**: A score of 0.6 is opaque. Knowing "tone: 100%, relevance: 80%, greeting: missing, empathy: 0 markers" tells the agent exactly what to fix.
+
+### 6. Streaming Grading (Server-Sent Events)
+
+The `/stream_step` endpoint provides real-time grading progress as the environment evaluates each criterion:
+
+```bash
+curl -X POST https://emitboi-email-triage-env.hf.space/stream_step \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Priority: urgent\nCategory: billing", "stream_interval": 0.1}'
+```
+
+Emits events: `start` → `progress` (per criterion) → `complete` (final reward + observation).
+
+**Why this matters**: Useful for building interactive UIs or monitoring grading in real time. Also enables future partial-response grading where the environment could evaluate chunks of the agent's output as they arrive.
+
+### 7. Multi-Turn Episodes
+
+The hard task (`email_thread`) uses a 4-step episode where each step builds on the previous one:
+
+1. Agent identifies contradictions → environment grades and returns next prompt
+2. Agent determines priority → graded separately
+3. Agent drafts resolution with action items → graded on content + structure
+4. Agent recommends follow-up → graded on specificity
+
+Previous responses are passed as `context` in subsequent observations, so the agent can reference its own earlier analysis.
+
+**Why this matters**: Most text environments are single-turn. Multi-turn episodes test whether agents can maintain coherence, build on prior reasoning, and handle structured problem-solving workflows.
+
+### 8. Hint System
+
+The `/hints/{task_id}` endpoint provides task-specific guidance for struggling agents without giving away answers:
+
+```bash
+curl https://emitboi-email-triage-env.hf.space/hints/email_classify
+```
+
+Returns hints like:
+- "Look for urgency keywords: 'URGENT', 'immediately', 'asap', 'critical'"
+- "Categories: billing (payments/invoices), technical (bugs/errors), security (threats/phishing)"
+
+**Why this matters**: Agents that consistently score below 0.3 can request hints to bootstrap their learning, similar to how a human mentor would guide a new employee.
+
+### 9. Metrics & Analytics
+
+The `/metrics` endpoint provides aggregate statistics across all episodes:
 
 ```json
 {
-  "total_episodes": 1234,
+  "total_episodes": 47,
+  "total_steps": 63,
   "per_task_stats": {
-    "email_classify": {
-      "episodes": 450,
-      "avg_score": 0.85,
-      "best_score": 1.0
-    }
+    "email_classify": {"episodes": 20, "avg_score": 0.85, "min_score": 0.5, "max_score": 1.0},
+    "email_respond": {"episodes": 15, "avg_score": 0.72, "min_score": 0.35, "max_score": 0.92}
   },
-  "uptime_seconds": 86400
+  "best_scores": {"email_classify": 1.0, "email_respond": 0.92, "email_thread": 0.68},
+  "uptime_seconds": 3600.5
 }
 ```
 
-_Why it matters: Researchers monitor agent learning progress_
+**Why this matters**: Researchers can monitor learning curves and compare performance across tasks without parsing individual episode logs.
 
-#### 🏆 **Leaderboard** (`/leaderboard` endpoint)
+### 10. Leaderboard
 
-Compare performance across agents:
-
-```json
-{
-  "leaderboard": [
-    {
-      "task": "email_classify",
-      "best_score": 0.98,
-      "perfect_runs": 25,
-      "avg_score": 0.82
-    }
-  ]
-}
-```
-
-_Why it's useful: Motivate agents, benchmark improvements_
-
-#### 💬 **Hint System** (`/hints/{task_id}` endpoint)
-
-Help struggling agents without spoiling answers:
-
-- Struggling on classification? → Hint: "Look for urgency keywords"
-- Stuck on response? → Hint: "Always start with a greeting"
-- Hard on thread? → Hint: "Identify who said what first"
-
-#### ⚙️ **Dynamic Configuration** (`/configure` endpoint)
-
-Adjust settings without redeploying:
+The `/leaderboard` endpoint tracks best scores, attempt counts, and perfect runs per task:
 
 ```bash
-curl -X POST /configure -d '{
-  "curriculum_mode": false,
-  "adaptive_difficulty": true
-}'
+curl https://emitboi-email-triage-env.hf.space/leaderboard
 ```
 
-_Why it's powerful: Researchers experiment without downtime_
+**Why this matters**: Provides a summary view of peak agent performance. Useful for benchmarking different models or prompting strategies.
 
-#### 🔁 **Episode Replay** (`/replay` endpoint)
+### 11. Episode Replay
 
-Review past episodes for debugging and analysis:
+The `/replay` endpoint stores the last 100 completed episodes with task ID, total reward, step count, and timestamp:
 
 ```bash
-curl /replay?limit=10  # Get last 10 episodes
+curl https://emitboi-email-triage-env.hf.space/replay?limit=5
 ```
+
+**Why this matters**: Enables post-hoc analysis of agent behavior. Researchers can identify which tasks or email types cause the most failures.
+
+### 12. Dynamic Configuration
+
+The `/configure` endpoint allows runtime adjustment of environment parameters without redeployment:
+
+```bash
+curl -X POST https://emitboi-email-triage-env.hf.space/configure \
+  -H "Content-Type: application/json" \
+  -d '{"curriculum_mode": false, "adaptive_difficulty": true}'
+```
+
+This can toggle curriculum learning on/off (unlocking all tasks when disabled) and enable/disable adaptive difficulty.
+
+**Why this matters**: Researchers can experiment with different training setups in a single session without restarting the server.
+
+### 13. Bonus Reward Signals
+
+Three specialized bonus rewards encourage nuanced agent behavior:
+
+- **Phishing detection** (+0.10): If an email is a phishing attempt and the agent flags it with keywords like "phishing", "scam", "fraudulent"
+- **De-escalation** (+0.05): If the customer is emotionally escalated and the agent uses appropriate de-escalation language ("understand your frustration", "valid concern")
+- **Proactive follow-up** (+0.05): If the agent suggests follow-up actions ("I'll follow up", "keep you posted", "update you")
+
+**Why this matters**: These bonuses reward real-world support skills that go beyond the basic task requirements.
 
 ---
 
-## 🎯 How This Compares to Other Submissions
-
-| Feature               | Typical Project | Email Triage Env                                 |
-| --------------------- | --------------- | ------------------------------------------------ |
-| **Number of Tasks**   | 1-2             | 3 with curriculum                                |
-| **Endpoints**         | 3-5             | **11 endpoints**                                 |
-| **Features**          | 5-7             | **17 features**                                  |
-| **Learning Feedback** | Binary reward   | Per-criterion + hindsight                        |
-| **Agent Assistance**  | None            | Hints + metrics + examples                       |
-| **Dynamic Config**    | No              | Yes (/configure)                                 |
-| **Analytics**         | Basic           | Advanced (/metrics, /leaderboard)                |
-| **Real-world Task**   | Synthetic       | **Email triage** (actual customer support)       |
-| **Code Quality**      | Good            | **Production-grade** (typed, tested, documented) |
-
----
-
-## 🏗️ Architecture
+## Architecture
 
 <p align="center">
   <img src="public/email_triage_env.png" alt="Email Triage Environment Architecture" width="800"/>
 </p>
 
-### Architecture Flow Explained
-
-The system follows an **Agent-Environment interaction loop** typical of reinforcement learning:
-
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              AGENT (LLM)                                    │
-│                    Qwen2.5-72B / GPT-4 / Claude etc.                        │
-└──────────────────────────────┬──────────────────────────────────────────────┘
-                               │ Action (text response)
-                               ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         FASTAPI SERVER                                      │
-│  ┌─────────┐  ┌─────────┐  ┌──────────────┐  ┌────────────┐                │
-│  │ /reset  │  │ /step   │  │ /stream_step │  │ /curriculum│                │
-│  └────┬────┘  └────┬────┘  └──────┬───────┘  └─────┬──────┘                │
-│       │            │              │                │                        │
-│       ▼            ▼              ▼                ▼                        │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                      ENVIRONMENT CORE                               │   │
-│  │  • State Management (current task, step, context)                   │   │
-│  │  • Email Similarity Avoidance (prevents memorization)               │   │
-│  │  • Adaptive Difficulty (auto-escalates when score > 0.8)            │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-└──────────────────────────────┬──────────────────────────────────────────────┘
-                               │
-          ┌────────────────────┼────────────────────┐
-          ▼                    ▼                    ▼
-┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
-│  TASK: CLASSIFY │  │  TASK: RESPOND  │  │  TASK: THREAD   │
-│    (Easy)       │  │    (Medium)     │  │    (Hard)       │
-│  • 1 step       │  │  • 1 step       │  │  • 4 steps      │
-│  • 12 emails    │  │  • 10 emails    │  │  • 5 threads    │
-└────────┬────────┘  └────────┬────────┘  └────────┬────────┘
-         │                    │                    │
-         ▼                    ▼                    ▼
-┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
-│ CLASSIFY GRADER │  │ RESPOND GRADER  │  │ THREAD GRADER   │
-│ • Priority 50%  │  │ • Tone 25%      │  │ • Contradict 30%│
-│ • Category 50%  │  │ • Relevance 25% │  │ • Priority 20%  │
-│ • Bonus: phish  │  │ • Length 15%    │  │ • Resolution 25%│
-│   /escalation   │  │ • Forbidden 15% │  │ • Follow-up 15% │
-│                 │  │ • Greeting 10%  │  │ • Coherence 10% │
-│                 │  │ • Empathy 10%   │  │                 │
-└────────┬────────┘  └────────┬────────┘  └────────┬────────┘
-         │                    │                    │
-         └────────────────────┼────────────────────┘
-                              ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         REWARD SIGNAL                                       │
-│  • Score: 0.0 - 1.0 (with bonus up to 1.15)                                │
-│  • Detailed feedback per criterion                                          │
-│  • Edge case penalties (empty, adversarial, too long)                       │
-└──────────────────────────────┬──────────────────────────────────────────────┘
-                               │ Observation + Reward
-                               ▼
-                         Back to AGENT
+Agent (LLM) ──action──> FastAPI Server ──> Environment Core ──> Task + Grader
+     ^                                                              |
+     └──────────── observation + reward <──────────────────────────┘
 ```
 
-**Key Flow Steps:**
+**Interaction loop:**
 
-1. **Reset** → Agent requests a task via `/reset` with optional `task_id` and `email_index`
-2. **Observe** → Environment returns email content with task-specific instructions
-3. **Act** → Agent submits text response via `/step` or `/stream_step`
-4. **Grade** → Task-specific grader computes deterministic reward (0.0–1.0)
-5. **Learn** → Agent receives observation + reward, loop continues
+1. **Reset** — Agent calls `/reset` with optional `task_id` and `email_index`. Environment picks a task and email, returns initial observation.
+2. **Observe** — Observation contains email content, task instructions, step count, and (for multi-turn) context from previous steps.
+3. **Act** — Agent sends text response via `/step`. Environment routes to the appropriate grader.
+4. **Grade** — Grader computes deterministic score (0.0-1.0) with per-criterion breakdown, penalties, bonuses, and explanations.
+5. **Repeat or End** — For single-step tasks, the episode ends. For `email_thread`, steps 2-4 repeat until all 4 steps are complete.
 
-**Curriculum Progression:**
-
-- Tasks unlock based on performance: `classify` (always) → `respond` (≥70%) → `thread` (≥65%)
-- Curriculum status available via `/curriculum` endpoint
-
-## Environment Description
-
-Agents interact with a stream of realistic emails and must:
-
-1. **Classify** emails by priority and category (easy)
-2. **Draft professional responses** to customer complaints (medium)
-3. **Resolve multi-email threads** with contradicting information (hard)
-
-The environment provides meaningful partial-credit rewards, deterministic grading, and adaptive difficulty scaling.
-
-## Action & Observation Spaces
-
-### Observation Space (text)
-
-Each observation contains:
-
-- **task_id**: which task is active
-- **prompt**: the email content with task instructions
-- **email_data**: structured email metadata (sender, subject, timestamp, etc.)
-- **step / max_steps**: current progress in the episode
-- **context**: previous responses (for multi-turn tasks)
-
-### Action Space (text)
-
-Free-form text response from the agent. The format depends on the task:
-
-- **Classification**: two lines — `Priority: <level>` and `Category: <type>`
-- **Response drafting**: professional email reply (50–300 words)
-- **Thread resolution**: step-by-step analysis across 4 turns
-
-## Tasks
-
-| Task             | Difficulty | Steps | Description                                                                                             |
-| ---------------- | ---------- | ----- | ------------------------------------------------------------------------------------------------------- |
-| `email_classify` | Easy       | 1     | Classify email priority (urgent/normal/low) and category (billing/technical/general/complaint/security) |
-| `email_respond`  | Medium     | 1     | Draft empathetic, professional response to a customer complaint                                         |
-| `email_thread`   | Hard       | 4     | Multi-turn: identify contradictions → determine priority → draft resolution → recommend follow-up       |
-
-### Task Descriptions & Expected Difficulty
-
-**Email Classification (Easy)**: Agent receives a single email and must identify its priority level and category. Perfect score requires exact match on both fields. Partial credit for off-by-one priority. 12 diverse emails including phishing attempts and emotional escalations.
-
-**Response Drafting (Medium)**: Agent receives a customer complaint and must craft a professional reply. Graded on 6 criteria: tone (25%), relevance (25%), length (15%), forbidden phrases (15%), greeting (10%), empathy (10%). 10 complaint emails covering billing, technical, legal, and interpersonal issues.
-
-**Thread Resolution (Hard)**: Agent receives a multi-email thread with contradicting claims from different senders. Must complete 4 steps: identify contradictions, determine true priority, draft resolution with action items, and recommend follow-up. 5 complex thread scenarios covering technical, security, budget, product, and HR domains.
-
-## Reward Function
-
-All scores are in `[0.0, 1.0]`. Graders are fully deterministic and reproducible.
-
-### Classification Grader
-
-- Priority match: exact = 0.5, off-by-one = 0.25, wrong = 0.0
-- Category match: exact = 0.5, wrong = 0.0
-- Bonus: +0.10 for detecting phishing, +0.05 for noting emotional escalation
-
-### Response Grader
-
-| Criterion    | Weight | What it measures                             |
-| ------------ | ------ | -------------------------------------------- |
-| Tone         | 0.25   | Professional language markers, no rude words |
-| Relevance    | 0.25   | Keyword overlap with original email          |
-| Length       | 0.15   | 50–300 words ideal range                     |
-| No-forbidden | 0.15   | Avoids dismissive/rude phrases               |
-| Greeting     | 0.10   | Starts with professional greeting            |
-| Empathy      | 0.10   | Contains apology/empathy markers             |
-
-Bonuses: +0.05 for proactive follow-up, +0.05 for de-escalation skills.
-
-### Thread Grader (per-step weights)
-
-| Step              | Weight | What it measures                                   |
-| ----------------- | ------ | -------------------------------------------------- |
-| 1. Contradictions | 0.30   | Identifies specific contradictions between senders |
-| 2. Priority       | 0.20   | Correct priority determination with justification  |
-| 3. Resolution     | 0.25   | Actionable plan with structured items              |
-| 4. Follow-up      | 0.15   | Specific timing and participant recommendations    |
-
-### Edge Case Handling
-
-- Empty responses → 0.0 reward
-- Adversarial/nonsense → penalized (alpha ratio check)
-- Excessively long responses → -0.15 penalty
-- Single-word responses → 80% reduction
+---
 
 ## Baseline Scores
 
 Tested with `Qwen/Qwen2.5-72B-Instruct` via Hugging Face Inference API:
 
-| Task           | Avg Score | Notes                                             |
-| -------------- | --------- | ------------------------------------------------- |
-| email_classify | ~0.85     | Usually gets both fields correct                  |
-| email_respond  | ~0.70     | Good tone/empathy, sometimes misses length target |
-| email_thread   | ~0.50     | Contradictions hard to fully enumerate            |
+| Task | Avg Score | Notes |
+|------|-----------|-------|
+| email_classify | ~0.85 | Usually gets both priority and category correct |
+| email_respond | ~0.70 | Good tone/empathy, sometimes misses ideal length range |
+| email_thread | ~0.50 | Contradictions are hard to fully enumerate across 4 steps |
+
+---
 
 ## Setup & Usage
 
@@ -414,10 +342,7 @@ Tested with `Qwen/Qwen2.5-72B-Instruct` via Hugging Face Inference API:
 ### Local Development
 
 ```bash
-# Install dependencies
 pip install -r requirements.txt
-
-# Run the server
 python -m uvicorn src.server:app --host 0.0.0.0 --port 7860
 
 # Run tests
@@ -433,10 +358,7 @@ python inference.py
 ### Docker
 
 ```bash
-# Build
 docker build -t email-triage-env .
-
-# Run
 docker run -p 7860:7860 \
   -e API_BASE_URL=https://router.huggingface.co/v1 \
   -e MODEL_NAME=Qwen/Qwen2.5-72B-Instruct \
@@ -446,214 +368,60 @@ docker run -p 7860:7860 \
 
 ### API Endpoints
 
-| Method | Path               | Description                                                                |
-| ------ | ------------------ | -------------------------------------------------------------------------- |
-| GET    | `/`                | Health check with feature list                                             |
-| POST   | `/reset`           | Start new episode. Body: `{"task_id": "email_classify", "email_index": 0}` |
-| POST   | `/step`            | Agent action. Body: `{"message": "Priority: urgent\nCategory: billing"}`   |
-| POST   | `/stream_step`     | Streaming step with SSE grading feedback                                   |
-| GET    | `/state`           | Current environment state                                                  |
-| GET    | `/curriculum`      | Curriculum learning status and unlocked tasks                              |
-| GET    | `/metrics`         | Aggregate statistics and analytics                                         |
-| GET    | `/leaderboard`     | Best scores per task and performance tracking                              |
-| GET    | `/replay`          | Episode history for replay and analysis                                    |
-| GET    | `/hints/{task_id}` | Task-specific hints for struggling agents                                  |
-| POST   | `/configure`       | Dynamically configure environment parameters                               |
-
-### Deploy to Hugging Face Spaces
-
-```bash
-# Push to HF Space
-openenv push --repo-id your-username/email-triage-env
-```
-
-## Innovative Features
-
-### 🎓 Curriculum Learning Mode
-
-Tasks unlock progressively based on agent performance:
-
-- **email_classify** (easy): Always available
-- **email_respond** (medium): Unlocks when classify avg ≥ 70%
-- **email_thread** (hard): Unlocks when respond avg ≥ 65%
-
-```bash
-# Check curriculum status
-curl http://localhost:7860/curriculum
-```
-
-### 📡 Streaming Grading Feedback
-
-Real-time grading progress via Server-Sent Events:
-
-```bash
-curl -X POST http://localhost:7860/stream_step \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Priority: urgent\nCategory: billing"}'
-```
-
-Events emitted: `start` → `progress` (per-criterion) → `complete`
-
-### 🔄 Email Similarity Avoidance
-
-Tracks seen emails per session to prevent memorization:
-
-- Each task maintains a seen-email set
-- New episodes prioritize unseen emails
-- Auto-resets when all emails exhausted
-
-### Other Features
-
-- **Adaptive difficulty**: Automatically escalates to harder tasks when agent scores >0.8
-- **Multi-turn episodes**: Hard task requires 4-step reasoning chain
-- **Rich grader feedback**: Per-criterion breakdowns with actionable improvement hints
-- **Phishing detection bonus**: Extra reward for identifying phishing/scam emails
-- **De-escalation bonus**: Extra reward for appropriate emotional de-escalation
-- **Proactive follow-up bonus**: Extra reward for suggesting next steps
-- **Edge case robustness**: Handles empty, adversarial, and excessively long responses
-
-### 🆕 New in v1.1.0
-
-#### 💡 Hindsight Feedback
-
-After grading, the environment returns the **ideal response** so agents can learn from examples:
-
-```json
-{
-  "reward_detail": {
-    "ideal_response": "Priority: urgent\nCategory: billing",
-    "explanations": {
-      "priority": "Correct! 'urgent' matches exactly.",
-      "category": "Incorrect: expected 'billing', got 'technical'."
-    }
-  }
-}
-```
-
-#### 📊 Metrics & Analytics
-
-Track aggregate performance via `/metrics`:
-
-```bash
-curl http://localhost:7860/metrics
-```
-
-Returns: total episodes, per-task stats (avg/min/max scores), uptime, etc.
-
-#### 🏆 Leaderboard
-
-Track best scores and perfect runs via `/leaderboard`:
-
-```bash
-curl http://localhost:7860/leaderboard
-```
-
-#### 💬 Hint System
-
-Get task-specific hints for struggling agents:
-
-```bash
-curl http://localhost:7860/hints/email_classify
-```
-
-#### ⚙️ Dynamic Configuration
-
-Adjust environment parameters without restart:
-
-```bash
-curl -X POST http://localhost:7860/configure \
-  -H "Content-Type: application/json" \
-  -d '{"curriculum_mode": false, "adaptive_difficulty": true}'
-```
-
-#### 🔁 Episode Replay
-
-Review past episodes for analysis:
-
-```bash
-curl http://localhost:7860/replay?limit=10
-```
-
-## 📁 Project Structure
-
-```
-my_env/
-├── openenv.yaml              # OpenEnv specification (env name, version, tasks, endpoints)
-├── Dockerfile                # Container definition (python:3.11-slim, port 7860)
-├── inference.py              # Baseline inference script with OpenAI Client
-├── requirements.txt          # Python dependencies
-├── pyproject.toml            # Python packaging configuration
-├── validate.py               # Pre-submission validation script
-├── README.md                 # This documentation
-│
-├── public/                   # Static assets
-│   ├── email_triage_env.png  # Architecture diagram (PNG)
-│   └── email_triage_env.svg  # Architecture diagram (SVG)
-│
-├── src/                      # Source code
-│   ├── __init__.py
-│   ├── models.py             # Pydantic models (Observation, Action, Reward, State)
-│   ├── environment.py        # Main OpenEnv class (step/reset/state)
-│   ├── reward.py             # Reward computation with edge case handling
-│   ├── server.py             # FastAPI server exposing API endpoints
-│   │
-│   ├── data/
-│   │   ├── __init__.py
-│   │   └── emails.py         # 27+ synthetic emails across all tasks
-│   │
-│   ├── tasks/
-│   │   ├── __init__.py
-│   │   ├── email_classify.py # Easy: classify by priority + category
-│   │   ├── email_respond.py  # Medium: draft professional reply
-│   │   └── email_thread.py   # Hard: multi-turn thread resolution
-│   │
-│   └── graders/
-│       ├── __init__.py
-│       ├── classify_grader.py # Priority + category matching (0.0–1.0)
-│       ├── respond_grader.py  # 6-criterion weighted scoring
-│       └── thread_grader.py   # Per-step + aggregate scoring
-│
-├── tests/                    # Test suite
-│   ├── __init__.py
-│   ├── test_environment.py   # Environment step/reset/state tests
-│   ├── test_graders.py       # Grader determinism and scoring tests
-│   ├── test_server.py        # API endpoint tests
-│   └── test_inference.py     # Inference output format tests
-```
-
-## 🚀 Quick Start
-
-```bash
-# 1. Clone/navigate to the project
-cd my_env
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Run validation (checks everything before submission)
-python validate.py
-
-# 4. Run tests
-pytest tests/ -v
-
-# 5. Start the server
-python -m uvicorn src.server:app --host 0.0.0.0 --port 7860
-
-# 6. Test the API
-curl http://localhost:7860/
-curl -X POST http://localhost:7860/reset -H "Content-Type: application/json" -d '{"task_id":"email_classify"}'
-```
-
-## 📝 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
-## 🙏 Acknowledgments
-
-Built for the **Meta x Hugging Face OpenEnv Hackathon** (April 2026).
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/` | Health check — returns status, version, feature list |
+| POST | `/reset` | Start new episode. Body: `{"task_id": "email_classify", "email_index": 0}` |
+| POST | `/step` | Submit agent action. Body: `{"message": "Priority: urgent\nCategory: billing"}` |
+| POST | `/stream_step` | Step with streaming SSE grading feedback |
+| GET | `/state` | Current environment state (task, step, reward, metadata) |
+| GET | `/curriculum` | Curriculum learning status — unlocked/locked tasks, thresholds |
+| GET | `/metrics` | Aggregate statistics — episodes, per-task scores, uptime |
+| GET | `/leaderboard` | Best scores, attempt counts, perfect runs per task |
+| GET | `/replay` | Episode history for post-hoc analysis |
+| GET | `/hints/{task_id}` | Task-specific hints for struggling agents |
+| POST | `/configure` | Adjust curriculum_mode, adaptive_difficulty at runtime |
 
 ---
 
-<p align="center">
-  <i>Simulating real-world email triage tasks for AI agent training</i>
-</p>
+## Project Structure
+
+```
+email-triage-env/
+├── openenv.yaml              # OpenEnv spec: name, version, tasks, endpoints
+├── Dockerfile                # python:3.11-slim, port 7860, uvicorn
+├── inference.py              # Baseline inference script (OpenAI Client)
+├── requirements.txt          # Python dependencies
+├── pyproject.toml            # Package configuration
+├── validate.py               # Pre-submission validation (17 checks)
+├── README.md
+├── public/
+│   ├── email_triage_env.png
+│   └── email_triage_env.svg
+├── src/
+│   ├── models.py             # Pydantic: Observation, Action, RewardDetail, State, StepResult
+│   ├── environment.py        # EmailTriageEnv: step(), reset(), state(), curriculum, adaptation
+│   ├── reward.py             # Edge case penalties (empty, nonsense, too long)
+│   ├── server.py             # FastAPI: 11 endpoints
+│   ├── data/
+│   │   └── emails.py         # 12 classify + 10 respond + 5 thread = 27 emails
+│   ├── tasks/
+│   │   ├── email_classify.py # Easy: priority + category classification
+│   │   ├── email_respond.py  # Medium: complaint response drafting
+│   │   └── email_thread.py   # Hard: 4-step thread resolution
+│   └── graders/
+│       ├── classify_grader.py
+│       ├── respond_grader.py
+│       └── thread_grader.py
+└── tests/
+    ├── test_environment.py   # reset/step/state, curriculum, similarity avoidance
+    ├── test_graders.py       # Determinism, score variation, all-in-range
+    ├── test_server.py        # All HTTP endpoints
+    └── test_inference.py     # [START]/[STEP]/[END] output format validation
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+Built for the **Meta x Hugging Face OpenEnv Hackathon** (April 2026).
