@@ -4,7 +4,7 @@ description: >
   Agents classify emails, draft professional replies to complaints,
   and resolve multi-email threads with contradictions.
   Simulates a task that customer support teams do daily.
-version: "1.0.0"
+version: "1.1.0"
 author: "EmitBoi"
 
 action_space:
@@ -60,6 +60,26 @@ endpoints:
     method: GET
     path: /curriculum
     description: "Get curriculum learning status and unlocked tasks"
+  metrics:
+    method: GET
+    path: /metrics
+    description: "Get aggregate metrics and analytics"
+  leaderboard:
+    method: GET
+    path: /leaderboard
+    description: "Get best scores and performance leaderboard"
+  replay:
+    method: GET
+    path: /replay
+    description: "Get episode history for replay and analysis"
+  hints:
+    method: GET
+    path: /hints/{task_id}
+    description: "Get task-specific hints for struggling agents"
+  configure:
+    method: POST
+    path: /configure
+    description: "Dynamically configure environment parameters"
   health:
     method: GET
     path: /
@@ -76,8 +96,16 @@ features:
   - phishing_detection_bonus: "Bonus reward for identifying phishing emails"
   - deescalation_bonus: "Bonus reward for appropriate de-escalation of emotional customers"
   - proactive_followup_bonus: "Bonus reward for suggesting follow-up actions"
+  # NEW INNOVATIVE FEATURES (v1.1.0)
+  - hindsight_feedback: "Shows ideal response after grading for agent learning"
+  - per_criterion_explanations: "Detailed explanations for each scoring criterion"
+  - hint_system: "Task-specific hints for struggling agents (score < 0.3)"
+  - metrics_analytics: "Aggregate statistics via /metrics endpoint"
+  - episode_replay: "Review past episodes via /replay endpoint"
+  - dynamic_configuration: "Adjust parameters via /configure without restart"
+  - leaderboard_tracking: "Best scores per task via /leaderboard endpoint"
 
 curriculum_thresholds:
-  email_classify: 0.0    # Always unlocked
-  email_respond: 0.70    # Requires 70% avg on classify
-  email_thread: 0.65     # Requires 65% avg on respond
+  email_classify: 0.0 # Always unlocked
+  email_respond: 0.70 # Requires 70% avg on classify
+  email_thread: 0.65 # Requires 65% avg on respond

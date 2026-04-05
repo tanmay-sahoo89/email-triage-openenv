@@ -51,6 +51,10 @@ class Observation(BaseModel):
     step: int
     max_steps: int
     context: Optional[str] = None
+    # NEW: Hint for struggling agents (score < 0.3 on previous step)
+    hint: Optional[str] = None
+    # NEW: Difficulty mode indicator
+    difficulty_mode: str = "normal"  # easy, normal, hard
 
 
 class Action(BaseModel):
@@ -63,6 +67,12 @@ class RewardDetail(BaseModel):
     feedback: str = ""
     penalties: list[str] = []
     bonuses: list[str] = []
+    # NEW: Hindsight feedback - shows ideal response after grading
+    ideal_response: Optional[str] = None
+    # NEW: Per-criterion explanations
+    explanations: dict[str, str] = {}
+    # NEW: Hints for improvement
+    hints: list[str] = []
 
 
 class StepResult(BaseModel):
