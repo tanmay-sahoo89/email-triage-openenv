@@ -40,7 +40,6 @@ Example:
     [END] success=true steps=1 score=1.00 rewards=1.00
 """
 
-import asyncio
 import os
 import textwrap
 from typing import Optional

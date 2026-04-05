@@ -19,11 +19,11 @@ license: mit
 
 An OpenEnv environment that simulates real-world email triage — the kind of work customer support teams do every day. AI agents classify emails by priority and category, draft professional responses to complaints, and resolve multi-email threads where different senders contradict each other. Three tasks with increasing difficulty, deterministic grading, and meaningful partial-credit rewards.
 
-| Link | Description |
-|------|-------------|
-| [Live API](https://emitboi-email-triage-env.hf.space/) | Health check, `/reset`, `/step`, `/state` |
-| [HF Space](https://huggingface.co/spaces/EmitBoi/email-triage-env) | Deployed environment |
-| [GitHub](https://github.com/tanmay-sahoo89/email-triage-openenv) | Source code |
+| Link                                                               | Description                               |
+| ------------------------------------------------------------------ | ----------------------------------------- |
+| [Live API](https://emitboi-email-triage-env.hf.space/)             | Health check, `/reset`, `/step`, `/state` |
+| [HF Space](https://huggingface.co/spaces/EmitBoi/email-triage-env) | Deployed environment                      |
+| [GitHub](https://github.com/tanmay-sahoo89/email-triage-openenv)   | Source code                               |
 
 ```bash
 # Quick test
@@ -66,14 +66,14 @@ The agent receives a customer complaint and must write a professional, empatheti
 - **Dataset**: 10 complaint emails — delayed refunds, broken integrations, SLA violations, GDPR requests, accessibility failures, rude support agents, breaking API changes
 - **Grading** (6 weighted criteria):
 
-| Criterion | Weight | How it's scored |
-|-----------|--------|-----------------|
-| Tone | 25% | Counts professional language markers (`resolve`, `ensure`, `assist`), penalizes rude words |
-| Relevance | 25% | Keyword overlap between the agent's response and the original complaint |
-| Length | 15% | 50-300 words = full credit, too short or too long = reduced |
-| No forbidden phrases | 15% | Zero tolerance for `not my problem`, `deal with it`, `calm down`, etc. |
-| Greeting | 10% | Must start with `Dear`, `Hello`, `Hi`, or similar professional greeting |
-| Empathy | 10% | Looks for markers like `apologize`, `understand`, `frustrating`, `inconvenience` |
+| Criterion            | Weight | How it's scored                                                                            |
+| -------------------- | ------ | ------------------------------------------------------------------------------------------ |
+| Tone                 | 25%    | Counts professional language markers (`resolve`, `ensure`, `assist`), penalizes rude words |
+| Relevance            | 25%    | Keyword overlap between the agent's response and the original complaint                    |
+| Length               | 15%    | 50-300 words = full credit, too short or too long = reduced                                |
+| No forbidden phrases | 15%    | Zero tolerance for `not my problem`, `deal with it`, `calm down`, etc.                     |
+| Greeting             | 10%    | Must start with `Dear`, `Hello`, `Hi`, or similar professional greeting                    |
+| Empathy              | 10%    | Looks for markers like `apologize`, `understand`, `frustrating`, `inconvenience`           |
 
 - **Bonuses**: +0.05 for proactive follow-up suggestions, +0.05 for de-escalation of emotionally charged emails
 
@@ -81,12 +81,12 @@ The agent receives a customer complaint and must write a professional, empatheti
 
 The agent receives a multi-email thread (3-4 emails) where different senders make contradicting claims. The agent must complete 4 steps in sequence:
 
-| Step | What the agent does | Weight | How it's graded |
-|------|---------------------|--------|-----------------|
-| 1. Identify contradictions | Find where senders disagree | 30% | Word overlap with known contradictions + conflict-marker keywords |
-| 2. Determine priority | Decide the true urgency level | 20% | Exact match = 1.0, off-by-one = 0.5 |
-| 3. Draft resolution | Write action items addressing the conflict | 25% | Coverage of expected action items + structured format (numbered/bulleted) |
-| 4. Recommend follow-up | Suggest next steps with timing and participants | 15% | Follow-up keywords + time specificity + participant overlap |
+| Step                       | What the agent does                             | Weight | How it's graded                                                           |
+| -------------------------- | ----------------------------------------------- | ------ | ------------------------------------------------------------------------- |
+| 1. Identify contradictions | Find where senders disagree                     | 30%    | Word overlap with known contradictions + conflict-marker keywords         |
+| 2. Determine priority      | Decide the true urgency level                   | 20%    | Exact match = 1.0, off-by-one = 0.5                                       |
+| 3. Draft resolution        | Write action items addressing the conflict      | 25%    | Coverage of expected action items + structured format (numbered/bulleted) |
+| 4. Recommend follow-up     | Suggest next steps with timing and participants | 15%    | Follow-up keywords + time specificity + participant overlap               |
 
 - **Steps per episode**: 4 (multi-turn)
 - **Dataset**: 5 thread scenarios — server migration deadline conflict, data breach scope disagreement, budget contradiction, product launch vs security risk, remote work policy confusion
@@ -107,13 +107,13 @@ All scores are in `[0.0, 1.0]`. Every grader is fully deterministic — the same
 
 ### Edge Case Penalties (applied to all tasks)
 
-| Condition | Penalty |
-|-----------|---------|
-| Empty response | Score forced to 0.0 |
-| Nonsense (< 30% alphabetic characters) | -0.50 |
-| Prompt repetition | -0.30 |
-| Excessively long (> 2000 words) | -0.15 |
-| Single word | Score reduced to 20% |
+| Condition                              | Penalty              |
+| -------------------------------------- | -------------------- |
+| Empty response                         | Score forced to 0.0  |
+| Nonsense (< 30% alphabetic characters) | -0.50                |
+| Prompt repetition                      | -0.30                |
+| Excessively long (> 2000 words)        | -0.15                |
+| Single word                            | Score reduced to 20% |
 
 ---
 
@@ -135,12 +135,17 @@ curl https://emitboi-email-triage-env.hf.space/curriculum
 ```
 
 Returns:
+
 ```json
 {
   "unlocked_tasks": ["email_classify"],
   "locked_tasks": ["email_respond", "email_thread"],
-  "task_averages": {"email_classify": 0.82},
-  "thresholds": {"email_classify": 0.0, "email_respond": 0.70, "email_thread": 0.65}
+  "task_averages": { "email_classify": 0.82 },
+  "thresholds": {
+    "email_classify": 0.0,
+    "email_respond": 0.7,
+    "email_thread": 0.65
+  }
 }
 ```
 
@@ -177,7 +182,9 @@ After grading, the environment returns the **ideal response** alongside the agen
       "priority": "Correct! 'urgent' matches exactly.",
       "category": "Incorrect: expected 'billing', got 'technical'."
     },
-    "hints": ["Consider the main topic: billing issues involve payments and invoices."]
+    "hints": [
+      "Consider the main topic: billing issues involve payments and invoices."
+    ]
   }
 }
 ```
@@ -228,6 +235,7 @@ curl https://emitboi-email-triage-env.hf.space/hints/email_classify
 ```
 
 Returns hints like:
+
 - "Look for urgency keywords: 'URGENT', 'immediately', 'asap', 'critical'"
 - "Categories: billing (payments/invoices), technical (bugs/errors), security (threats/phishing)"
 
@@ -242,10 +250,24 @@ The `/metrics` endpoint provides aggregate statistics across all episodes:
   "total_episodes": 47,
   "total_steps": 63,
   "per_task_stats": {
-    "email_classify": {"episodes": 20, "avg_score": 0.85, "min_score": 0.5, "max_score": 1.0},
-    "email_respond": {"episodes": 15, "avg_score": 0.72, "min_score": 0.35, "max_score": 0.92}
+    "email_classify": {
+      "episodes": 20,
+      "avg_score": 0.85,
+      "min_score": 0.5,
+      "max_score": 1.0
+    },
+    "email_respond": {
+      "episodes": 15,
+      "avg_score": 0.72,
+      "min_score": 0.35,
+      "max_score": 0.92
+    }
   },
-  "best_scores": {"email_classify": 1.0, "email_respond": 0.92, "email_thread": 0.68},
+  "best_scores": {
+    "email_classify": 1.0,
+    "email_respond": 0.92,
+    "email_thread": 0.68
+  },
   "uptime_seconds": 3600.5
 }
 ```
@@ -324,11 +346,11 @@ Agent (LLM) ──action──> FastAPI Server ──> Environment Core ──> 
 
 Tested with `Qwen/Qwen2.5-72B-Instruct` via Hugging Face Inference API:
 
-| Task | Avg Score | Notes |
-|------|-----------|-------|
-| email_classify | ~0.85 | Usually gets both priority and category correct |
-| email_respond | ~0.70 | Good tone/empathy, sometimes misses ideal length range |
-| email_thread | ~0.50 | Contradictions are hard to fully enumerate across 4 steps |
+| Task           | Avg Score | Notes                                                     |
+| -------------- | --------- | --------------------------------------------------------- |
+| email_classify | ~0.85     | Usually gets both priority and category correct           |
+| email_respond  | ~0.70     | Good tone/empathy, sometimes misses ideal length range    |
+| email_thread   | ~0.50     | Contradictions are hard to fully enumerate across 4 steps |
 
 ---
 
@@ -368,19 +390,19 @@ docker run -p 7860:7860 \
 
 ### API Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/` | Health check — returns status, version, feature list |
-| POST | `/reset` | Start new episode. Body: `{"task_id": "email_classify", "email_index": 0}` |
-| POST | `/step` | Submit agent action. Body: `{"message": "Priority: urgent\nCategory: billing"}` |
-| POST | `/stream_step` | Step with streaming SSE grading feedback |
-| GET | `/state` | Current environment state (task, step, reward, metadata) |
-| GET | `/curriculum` | Curriculum learning status — unlocked/locked tasks, thresholds |
-| GET | `/metrics` | Aggregate statistics — episodes, per-task scores, uptime |
-| GET | `/leaderboard` | Best scores, attempt counts, perfect runs per task |
-| GET | `/replay` | Episode history for post-hoc analysis |
-| GET | `/hints/{task_id}` | Task-specific hints for struggling agents |
-| POST | `/configure` | Adjust curriculum_mode, adaptive_difficulty at runtime |
+| Method | Path               | Description                                                                     |
+| ------ | ------------------ | ------------------------------------------------------------------------------- |
+| GET    | `/`                | Health check — returns status, version, feature list                            |
+| POST   | `/reset`           | Start new episode. Body: `{"task_id": "email_classify", "email_index": 0}`      |
+| POST   | `/step`            | Submit agent action. Body: `{"message": "Priority: urgent\nCategory: billing"}` |
+| POST   | `/stream_step`     | Step with streaming SSE grading feedback                                        |
+| GET    | `/state`           | Current environment state (task, step, reward, metadata)                        |
+| GET    | `/curriculum`      | Curriculum learning status — unlocked/locked tasks, thresholds                  |
+| GET    | `/metrics`         | Aggregate statistics — episodes, per-task scores, uptime                        |
+| GET    | `/leaderboard`     | Best scores, attempt counts, perfect runs per task                              |
+| GET    | `/replay`          | Episode history for post-hoc analysis                                           |
+| GET    | `/hints/{task_id}` | Task-specific hints for struggling agents                                       |
+| POST   | `/configure`       | Adjust curriculum_mode, adaptive_difficulty at runtime                          |
 
 ---
 
