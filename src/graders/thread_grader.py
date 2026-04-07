@@ -1,4 +1,4 @@
-"""Deterministic grader for thread resolution task (multi-turn). Returns 0.0-1.0."""
+"""Deterministic grader for thread resolution task (multi-turn). Returns (0.01-0.99)."""
 
 import re
 
@@ -193,7 +193,7 @@ def grade_thread_step(
     if not response or not response.strip():
         step_names = {0: "contradiction", 1: "priority", 2: "resolution", 3: "followup"}
         return RewardDetail(
-            total=0.0,
+            total=0.01,  # Use 0.01 instead of 0.0 per hackathon rules
             breakdown={step_names.get(step, "unknown"): 0.0},
             feedback=f"Empty response for step {step + 1}.",
             penalties=["empty_response"],
@@ -229,6 +229,11 @@ def grade_thread_step(
         score = max(score - 0.1, 0.0)
 
     score = round(min(max(score, 0.0), 1.0), 2)
+    # Ensure score is strictly between 0 and 1 (not 0.0 or 1.0) per hackathon rules
+    if score <= 0.0:
+        score = 0.01
+    elif score >= 1.0:
+        score = 0.99
 
     return RewardDetail(
         total=score,
@@ -267,6 +272,11 @@ def grade_thread_resolution(
 
     # If fewer than 4 steps provided, remaining steps score 0
     total = round(min(max(total, 0.0), 1.0), 2)
+    # Ensure score is strictly between 0 and 1 (not 0.0 or 1.0) per hackathon rules
+    if total <= 0.0:
+        total = 0.01
+    elif total >= 1.0:
+        total = 0.99
 
     return RewardDetail(
         total=total,

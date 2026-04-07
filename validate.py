@@ -302,6 +302,55 @@ def validate_streaming_endpoint() -> bool:
         return False
 
 
+def validate_strict_score_range() -> bool:
+    """Validate scores are strictly between 0 and 1 (not 0.0 or 1.0)."""
+    print("\n📐 Validating strict score range (0, 1)...")
+    
+    try:
+        from src.graders.classify_grader import grade_classification
+        from src.graders.respond_grader import grade_response
+        from src.graders.thread_grader import grade_thread_step
+        from src.data.emails import CLASSIFY_EMAILS, RESPOND_EMAILS, THREAD_SCENARIOS
+        
+        # Test empty responses (should be 0.01, not 0.0)
+        email = CLASSIFY_EMAILS[0]
+        r = grade_classification("", email)
+        if r.total == 0.0:
+            print(f"  ✗ Classification empty response returns 0.0 (should be 0.01)")
+            return False
+        print(f"  ✓ Classification empty: {r.total} (not 0.0)")
+        
+        # Test perfect response (should be 0.99, not 1.0)
+        r = grade_classification("Priority: urgent\nCategory: billing", email)
+        if r.total == 1.0:
+            print(f"  ✗ Classification perfect response returns 1.0 (should be <=0.99)")
+            return False
+        print(f"  ✓ Classification perfect: {r.total} (not 1.0)")
+        
+        # Test response grader
+        email = RESPOND_EMAILS[0]
+        r = grade_response("", email)
+        if r.total == 0.0:
+            print(f"  ✗ Response empty returns 0.0 (should be 0.01)")
+            return False
+        print(f"  ✓ Response empty: {r.total} (not 0.0)")
+        
+        # Test thread grader
+        thread = THREAD_SCENARIOS[0]
+        r = grade_thread_step(0, "", thread)
+        if r.total == 0.0:
+            print(f"  ✗ Thread empty returns 0.0 (should be 0.01)")
+            return False
+        print(f"  ✓ Thread empty: {r.total} (not 0.0)")
+        
+        print("  ✓ All scores strictly between 0 and 1")
+        return True
+        
+    except Exception as e:
+        print(f"  ✗ Strict score range validation failed: {e}")
+        return False
+
+
 def main():
     print("=" * 60)
     print("🚀 OpenEnv Pre-Submission Validation")
@@ -339,6 +388,7 @@ def main():
     # Validate innovative features
     results.append(validate_innovative_features())
     results.append(validate_streaming_endpoint())
+    results.append(validate_strict_score_range())
     
     # Summary
     print("\n" + "=" * 60)

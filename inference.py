@@ -173,15 +173,26 @@ def run_task(client: OpenAI, env: EmailTriageEnv, task_name: str, email_idx: int
             obs = result.observation
 
         score = sum(rewards) / max(len(rewards), 1)
-        score = min(max(score, 0.0), 1.0)
+        # Ensure score is strictly between 0 and 1 (not 0.0 or 1.0) per hackathon rules
+        if score <= 0.0:
+            score = 0.01
+        elif score >= 1.0:
+            score = 0.99
         success = score >= SUCCESS_SCORE_THRESHOLD
 
     except Exception as e:
         print(f"[DEBUG] Error during task {task_name}: {e}", flush=True)
         if not rewards:
-            rewards = [0.0]
+            rewards = [0.01]  # Use 0.01 instead of 0.0 per hackathon rules
             steps_taken = 1
-            log_step(step=1, action="error", reward=0.0, done=True, error=str(e))
+            log_step(step=1, action="error", reward=0.01, done=True, error=str(e))
+        # Ensure score is clamped even on error path
+        score = sum(rewards) / max(len(rewards), 1)
+        if score <= 0.0:
+            score = 0.01
+        elif score >= 1.0:
+            score = 0.99
+        success = score >= SUCCESS_SCORE_THRESHOLD
 
     finally:
         log_end(success=success, steps=steps_taken, score=score, rewards=rewards)

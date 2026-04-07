@@ -1,4 +1,4 @@
-"""Deterministic grader for response drafting task. Returns 0.0-1.0."""
+"""Deterministic grader for response drafting task. Returns (0.01-0.99)."""
 
 import re
 
@@ -94,14 +94,14 @@ def _word_count(text: str) -> int:
 
 
 def grade_response(response: str, email: Email) -> RewardDetail:
-    """Grade a customer support response. Fully deterministic, returns 0.0-1.0."""
+    """Grade a customer support response. Fully deterministic, returns (0.01-0.99)."""
     penalties: list[str] = []
     bonuses: list[str] = []
     breakdown: dict[str, float] = {}
 
     if not response or not response.strip():
         return RewardDetail(
-            total=0.0,
+            total=0.01,  # Use 0.01 instead of 0.0 per hackathon rules
             breakdown={"tone": 0.0, "relevance": 0.0, "length": 0.0,
                         "no_forbidden": 0.0, "greeting": 0.0, "empathy": 0.0},
             feedback="Empty response — no credit.",
@@ -219,6 +219,11 @@ def grade_response(response: str, email: Email) -> RewardDetail:
             breakdown["deescalation_bonus"] = 0.05
 
     total = round(min(max(total, 0.0), 1.0), 2)
+    # Ensure score is strictly between 0 and 1 (not 0.0 or 1.0) per hackathon rules
+    if total <= 0.0:
+        total = 0.01
+    elif total >= 1.0:
+        total = 0.99
 
     feedback_parts = [
         f"Tone: {tone_score:.0%}",

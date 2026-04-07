@@ -15,7 +15,7 @@ observation_space:
   type: text
   description: "Email content with task-specific instructions"
 
-reward_range: [0.0, 1.0]
+reward_range: [0.01, 0.99]
 
 tasks:
   - id: email_classify

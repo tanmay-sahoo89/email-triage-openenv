@@ -1,4 +1,4 @@
-"""Deterministic grader for email classification task. Returns 0.0-1.0."""
+"""Deterministic grader for email classification task. Returns (0.01-0.99)."""
 
 from src.models import Email, EmailPriority, EmailCategory, RewardDetail
 
@@ -50,7 +50,7 @@ def _extract_category(text: str) -> EmailCategory | None:
 
 
 def grade_classification(response: str, email: Email) -> RewardDetail:
-    """Grade an email classification response. Fully deterministic, returns 0.0-1.0."""
+    """Grade an email classification response. Fully deterministic, returns (0.01-0.99)."""
     penalties: list[str] = []
     bonuses: list[str] = []
     breakdown: dict[str, float] = {}
@@ -66,7 +66,7 @@ def grade_classification(response: str, email: Email) -> RewardDetail:
 
     if not response or not response.strip():
         return RewardDetail(
-            total=0.0,
+            total=0.01,  # Use 0.01 instead of 0.0 per hackathon rules
             breakdown={"priority": 0.0, "category": 0.0},
             feedback="Empty response — no credit.",
             penalties=["empty_response"],
@@ -138,6 +138,11 @@ def grade_classification(response: str, email: Email) -> RewardDetail:
         total = max(total - 0.1, 0.0)
 
     total = round(total, 2)
+    # Ensure score is strictly between 0 and 1 (not 0.0 or 1.0) per hackathon rules
+    if total <= 0.0:
+        total = 0.01
+    elif total >= 1.0:
+        total = 0.99
 
     feedback_parts = []
     feedback_parts.append(
