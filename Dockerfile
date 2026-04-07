@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
 COPY src/ src/
+COPY public/ public/
 COPY inference.py .
 COPY openenv.yaml .
 COPY README.md .

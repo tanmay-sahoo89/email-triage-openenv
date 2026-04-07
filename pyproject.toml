@@ -31,6 +31,7 @@ dependencies = [
     "openai>=1.58.0",
     "httpx>=0.28.0",
     "pyyaml>=6.0",
+    "openenv-core>=0.2.0",
 ]
 
 [project.optional-dependencies]
@@ -46,10 +47,11 @@ Documentation = "https://huggingface.co/spaces/EmitBoi/email-triage-env"
 
 [project.scripts]
 email-triage-server = "src.server:start_server"
+server = "server.app:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["src*"]
+include = ["src*", "server*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
