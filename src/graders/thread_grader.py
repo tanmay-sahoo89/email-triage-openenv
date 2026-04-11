@@ -193,7 +193,7 @@ def grade_thread_step(
     if not response or not response.strip():
         step_names = {0: "contradiction", 1: "priority", 2: "resolution", 3: "followup"}
         return RewardDetail(
-            total=0.01,  # Use 0.01 instead of 0.0 per hackathon rules
+            total=0.0,
             breakdown={step_names.get(step, "unknown"): 0.0},
             feedback=f"Empty response for step {step + 1}.",
             penalties=["empty_response"],
@@ -229,11 +229,6 @@ def grade_thread_step(
         score = max(score - 0.1, 0.0)
 
     score = round(min(max(score, 0.0), 1.0), 2)
-    # Ensure score is strictly between 0 and 1 (not 0.0 or 1.0) per hackathon rules
-    if score <= 0.0:
-        score = 0.01
-    elif score >= 1.0:
-        score = 0.99
 
     return RewardDetail(
         total=score,

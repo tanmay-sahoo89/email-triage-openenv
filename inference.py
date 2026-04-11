@@ -55,7 +55,8 @@ from src.models import Action
 
 API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
 MODEL_NAME = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
-API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
+HF_TOKEN = os.getenv("HF_TOKEN") or "test-token"  # Allow test token for development
+
 BENCHMARK = os.getenv("EMAIL_TRIAGE_BENCHMARK", "email_triage_env")
 
 TASK_NAMES = ["email_classify", "email_respond", "email_thread"]
@@ -199,7 +200,11 @@ def run_task(client: OpenAI, env: EmailTriageEnv, task_name: str, email_idx: int
 
 
 def main() -> None:
-    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    # Validate HF_TOKEN for production
+    if HF_TOKEN == "test-token" and "PYTEST" not in os.environ:
+        raise ValueError("HF_TOKEN environment variable is required for production inference")
+    
+    client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
     env = EmailTriageEnv(adaptive_difficulty=False, curriculum_mode=False)
 
     # Run 2 episodes per task to demonstrate reproducibility

@@ -4,7 +4,7 @@ description: >
   Agents classify emails, draft professional replies to complaints,
   and resolve multi-email threads with contradictions.
   Simulates a task that customer support teams do daily.
-version: "1.1.0"
+version: "1.2.0"
 author: "EmitBoi"
 
 action_space:
@@ -24,6 +24,7 @@ tasks:
     description: "Classify an email by priority (urgent/normal/low) and category (billing/technical/general/complaint/security)"
     max_steps: 1
     grader: deterministic
+    dataset_size: 22  # 12 standard + 10 adversarial
 
   - id: email_respond
     name: "Response Drafting"
@@ -31,6 +32,7 @@ tasks:
     description: "Draft a professional, empathetic response to a customer complaint email"
     max_steps: 1
     grader: deterministic
+    dataset_size: 10
 
   - id: email_thread
     name: "Thread Resolution"
@@ -38,6 +40,7 @@ tasks:
     description: "Analyze a multi-email thread with contradictions, identify conflicts, determine priority, draft resolution, and recommend follow-up"
     max_steps: 4
     grader: deterministic
+    dataset_size: 5
 
 endpoints:
   reset:
@@ -80,32 +83,78 @@ endpoints:
     method: POST
     path: /configure
     description: "Dynamically configure environment parameters"
+  benchmark:
+    method: GET
+    path: /benchmark
+    description: "Compare multiple agents/models side-by-side (agent benchmarking)"
+  learning_curve:
+    method: GET
+    path: /learning_curve
+    description: "Export learning curve data for visualization and research"
+  adversarial:
+    method: GET
+    path: /adversarial
+    description: "Get available adversarial/edge-case email scenarios"
+  profiling:
+    method: GET
+    path: /profiling
+    description: "Get performance profiling data for latency optimization"
+  export:
+    method: GET
+    path: /export
+    description: "Export all environment data for research and analysis"
+  research_info:
+    method: GET
+    path: /research_info
+    description: "Get environment specifications and citation information"
   health:
     method: GET
     path: /
     description: "Health check endpoint"
 
 features:
+  # Core OpenEnv Features
   - curriculum_learning: "Auto-unlock harder tasks when agent masters easier ones (classify→respond→thread)"
   - adaptive_difficulty: "Auto-escalates task difficulty when agent scores >0.8"
   - email_similarity_avoidance: "Tracks seen emails per session to prevent memorization"
   - streaming_grading: "Real-time grading feedback via /stream_step endpoint"
   - multi_turn_episodes: "Hard task uses 4-step episodes (identify→prioritize→resolve→followup)"
+  
+  # Reward & Feedback Features
   - rich_grader_feedback: "Per-criterion score breakdowns with actionable feedback"
   - edge_case_handling: "Handles empty, adversarial, and excessively long responses"
   - phishing_detection_bonus: "Bonus reward for identifying phishing emails"
   - deescalation_bonus: "Bonus reward for appropriate de-escalation of emotional customers"
   - proactive_followup_bonus: "Bonus reward for suggesting follow-up actions"
-  # NEW INNOVATIVE FEATURES (v1.1.0)
+  
+  # XAI (Explainable AI) Features (v1.1.0+)
   - hindsight_feedback: "Shows ideal response after grading for agent learning"
   - per_criterion_explanations: "Detailed explanations for each scoring criterion"
+  - word_level_importance: "XAI feature showing which words contributed to scores"
   - hint_system: "Task-specific hints for struggling agents (score < 0.3)"
+  
+  # Analytics & Research Features (v1.1.0+)
   - metrics_analytics: "Aggregate statistics via /metrics endpoint"
   - episode_replay: "Review past episodes via /replay endpoint"
   - dynamic_configuration: "Adjust parameters via /configure without restart"
   - leaderboard_tracking: "Best scores per task via /leaderboard endpoint"
+  
+  # Advanced Research Features (v1.2.0) - NEW
+  - agent_benchmarking: "Compare multiple agents/models with /benchmark endpoint"
+  - learning_curve_export: "Export episode-level data for plotting learning curves"
+  - adversarial_mode: "Challenge mode with deliberately tricky emails"
+  - performance_profiling: "Response time analytics via /profiling endpoint"
+  - research_export: "One-click export of all metrics for research papers"
 
 curriculum_thresholds:
   email_classify: 0.0 # Always unlocked
   email_respond: 0.70 # Requires 70% avg on classify
   email_thread: 0.65 # Requires 65% avg on respond
+
+adversarial_categories:
+  - ambiguous_priority: "Emails where urgency is deliberately unclear"
+  - subtle_phishing: "Sophisticated phishing that mimics legitimate business emails"
+  - emotional_manipulation: "Customers using emotional tactics"
+  - cross_category: "Emails legitimately fitting multiple categories"
+  - sarcasm_irony: "Emails with sarcastic tone requiring intent understanding"
+  - multilingual: "Emails mixing languages (code-switching)"

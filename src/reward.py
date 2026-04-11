@@ -16,7 +16,7 @@ def apply_edge_case_penalties(response: str, base_reward: RewardDetail) -> Rewar
 
     if not response or not response.strip():
         return RewardDetail(
-            total=0.01,  # Use 0.01 instead of 0.0 per hackathon rules
+            total=0.0,
             breakdown=base_reward.breakdown,
             feedback="Empty response.",
             penalties=["empty_response"],
@@ -48,11 +48,6 @@ def apply_edge_case_penalties(response: str, base_reward: RewardDetail) -> Rewar
         penalties.append("single_word")
 
     total = round(min(max(total, 0.0), 1.0), 2)
-    # Ensure score is strictly between 0 and 1 (not 0.0 or 1.0) per hackathon rules
-    if total <= 0.0:
-        total = 0.01
-    elif total >= 1.0:
-        total = 0.99
 
     return RewardDetail(
         total=total,
